@@ -1,0 +1,177 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+
+model Roles {
+  id_rol   Int      @id @default(autoincrement())
+  nombre   String
+  estado   String
+  permisos        Permisos[]
+  usuarios        Usuarios[]
+  verDetalleRoles VerDetalleRol[]
+}
+
+model Permisos {
+  id_permiso Int    @id @default(autoincrement())
+  descripcion String
+  id_rol     Int
+
+  rol        Roles       @relation(fields: [id_rol], references: [id_rol])
+  verDetalle VerDetalleRol[]
+}
+
+model Usuarios {
+  id_usuario Int    @id @default(autoincrement())
+  nombre     String
+  correo     String   @unique
+  contrasena String
+  estado     String
+  id_rol     Int
+
+  rol Roles @relation(fields: [id_rol], references: [id_rol])
+}
+
+model VerDetalleRol {
+  id_detalle Int @id @default(autoincrement())
+  id_rol     Int
+  id_permiso Int
+
+  rol     Roles   @relation(fields: [id_rol], references: [id_rol])
+  permiso Permisos @relation(fields: [id_permiso], references: [id_permiso])
+}
+
+model Referencias {
+  id_referencia Int    @id @default(autoincrement())
+  nombre        String
+  descripcion   String
+  url           String
+
+  operaciones      Operaciones[]
+  verDetalleOrden  VerDetalleOrden[]
+}
+
+model OrdenProduccion {
+  id_orden       Int      @id @default(autoincrement())
+  fecha_creacion DateTime @default(now())
+  estado         String
+  id_cliente     Int
+
+  cliente   Clientes         @relation(fields: [id_cliente], references: [id_cliente])
+  detalles  VerDetalleOrden[]
+  desempenos Desempeno[]
+}
+
+model Clientes {
+  id_cliente Int    @id @default(autoincrement())
+  nombre     String
+  telefono   Int?
+  correo     String?
+  pagina     String?
+
+  ordenes OrdenProduccion[]
+}
+
+model VerDetalleOrden {
+  id_detalle    Int @id @default(autoincrement())
+  id_orden      Int
+  id_referencia Int
+  Cantidad      Int
+
+  orden      OrdenProduccion @relation(fields: [id_orden], references: [id_orden])
+  referencia Referencias     @relation(fields: [id_referencia], references: [id_referencia])
+  avances    Avances[]
+  detallesDesempeno VerDetalleDesempeno[]
+}
+
+model Maquinas {
+  id_maquina Int @id @default(autoincrement())
+  nombre     String
+  tipo       String
+  estado     String
+
+  operaciones Operaciones[]
+}
+
+model Operaciones {
+  id_operacion      Int @id @default(autoincrement())
+  nombre            String
+  estado            String
+  id_referencia     Int
+  id_maquina        Int
+  Cantidad_estandar Int
+
+  referencia Referencias @relation(fields: [id_referencia], references: [id_referencia])
+  maquina    Maquinas    @relation(fields: [id_maquina], references: [id_maquina])
+
+  avances            Avances[]
+  verDetalleDesempeno VerDetalleDesempeno[]
+}
+
+model Avances {
+  id_avance    Int      @id @default(autoincrement())
+  descripcion  String
+  fecha        DateTime @default(now())
+  estado       String
+  id_detalle   Int
+  id_operacion Int
+
+  detalle    VerDetalleOrden @relation(fields: [id_detalle], references: [id_detalle])
+  operacion  Operaciones?    @relation(fields: [id_operacion], references: [id_operacion])
+}
+
+model Operarias {
+  id_operaria Int @id @default(autoincrement())
+  nombre      String
+  estado      String
+
+  verDetalleDesempeno VerDetalleDesempeno[]
+}
+
+model Desempeno {
+  id_desempeno      Int      @id @default(autoincrement())
+  Cantida_producida Int
+  productividad     Float
+  fecha             DateTime @default(now())
+  id_orden          Int
+
+  orden    OrdenProduccion @relation(fields: [id_orden], references: [id_orden])
+  detalles VerDetalleDesempeno[]
+  reportes ReportesDesempeno[]
+}
+
+model VerDetalleDesempeno {
+  id_detalle   Int @id @default(autoincrement())
+  id_desempeno Int
+  id_operaria  Int
+  id_operacion Int
+  Cantidad     Int
+  Eficiencia   Boolean
+  Porcentaje   Float
+
+  desempeno Desempeno @relation(fields: [id_desempeno], references: [id_desempeno])
+  operaria  Operarias @relation(fields: [id_operaria], references: [id_operaria])
+  operacion Operaciones? @relation(fields: [id_operacion], references: [id_operacion])
+
+  verDetalleOrden     VerDetalleOrden? @relation(fields: [id_detalle_orden], references: [id_detalle])
+  id_detalle_orden    Int?
+
+  reportes            ReportesDesempeno[]
+}
+
+model ReportesDesempeno {
+  id_reporte         Int      @id @default(autoincrement())
+  desempeno_operaria String
+  prendas_producidas Int
+  hora_revision      DateTime @default(now())
+  id_detalle_desempeno Int
+
+  detalle    VerDetalleDesempeno @relation(fields: [id_detalle_desempeno], references: [id_detalle])
+  desempeno  Desempeno?          @relation(fields: [id_desempeno], references: [id_desempeno]) // ← Relación inversa faltante
+  id_desempeno Int?              // ← Campo para la relación
+}
