@@ -27,45 +27,58 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ====== RUTAS ======
-app.use("/roles", rolesRoutes);
-app.use("/permisos", permisosRoutes);
-app.use("/usuarios", usuariosRoutes);
-app.use("/ver-detalle-rol", verDetalleRolRoutes);
-app.use("/referencias", referenciasRoutes);
-app.use("/ordenes", ordenProduccionRoutes);
-app.use("/ver-detalle-orden", verDetalleOrdenRoutes);
-app.use("/maquinas", maquinasRoutes);
-app.use("/operaciones", operacionesRoutes);
-app.use("/avances", avancesRoutes);
-app.use("/operarias", operariasRoutes);
-app.use("/desempeno", desempenoRoutes);
-app.use("/ver-detalle-desempeno", verDetalleDesempenoRoutes);
-app.use("/reportes-desempeno", reportesDesempenoRoutes);
-app.use("/clientes", clientesRoutes);
+// ====== PREFIJO GLOBAL /api ======
+const API_PREFIX = "/api";
 
+// ====== RUTAS CON PREFIJO ======
+app.use(`${API_PREFIX}/roles`, rolesRoutes);
+app.use(`${API_PREFIX}/permisos`, permisosRoutes);
+app.use(`${API_PREFIX}/usuarios`, usuariosRoutes);
+app.use(`${API_PREFIX}/ver-detalle-rol`, verDetalleRolRoutes);
+app.use(`${API_PREFIX}/referencias`, referenciasRoutes);
+app.use(`${API_PREFIX}/ordenes`, ordenProduccionRoutes);
+app.use(`${API_PREFIX}/ver-detalle-orden`, verDetalleOrdenRoutes);
+app.use(`${API_PREFIX}/maquinas`, maquinasRoutes);
+app.use(`${API_PREFIX}/operaciones`, operacionesRoutes);
+app.use(`${API_PREFIX}/avances`, avancesRoutes);
+app.use(`${API_PREFIX}/operarias`, operariasRoutes);
+app.use(`${API_PREFIX}/desempeno`, desempenoRoutes);
+app.use(`${API_PREFIX}/ver-detalle-desempeno`, verDetalleDesempenoRoutes);
+app.use(`${API_PREFIX}/reportes-desempeno`, reportesDesempenoRoutes);
+app.use(`${API_PREFIX}/clientes`, clientesRoutes);
 
+// ====== BASE_URL ======
+const BASE_URL = process.env.BASE_URL || "http://localhost:3000";
 
-
+// ====== ENDPOINT PRINCIPAL / con links clicables ======
 app.get("/", (req, res) => {
-  // Obtener todas las rutas y filtrar las que NO contienen ':'
   const rutas = listEndpoints(app)
-    .map(r => r.path)          // solo extrae el path
-    .filter(path => !path.includes(":")); // filtra rutas con parámetros
+    .map(r => r.path)
+    .filter(path => !path.includes(":")) // solo rutas base
+    .map(path => `${BASE_URL}${path}`);   // convertir en URL completa
 
-  res.setHeader("Content-Type", "application/json");
-  res.send(JSON.stringify({
-    mensaje: "API de Jirehmar en ejecución",
-    rutas_disponibles: rutas
-  }, null, 2)); // '2' espacios para indentación
+  const html = `
+    <html>
+      <head>
+        <title>API de Jirehmar</title>
+      </head>
+      <body>
+        <h1>API de Jirehmar en ejecución</h1>
+        <ul>
+          ${rutas.map(r => `<li><a href="${r}" target="_blank">${r}</a></li>`).join("")}
+        </ul>
+      </body>
+    </html>
+  `;
+
+  res.setHeader("Content-Type", "text/html");
+  res.send(html);
 });
-
 
 // ====== ENDPOINT JSON DE TODAS LAS RUTAS ======
 app.get("/routes", (req, res) => {
   const rutas = listEndpoints(app);
   res.json(rutas); // Array JSON puro con toda la info de rutas
 });
-
 
 export default app;
