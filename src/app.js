@@ -27,19 +27,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ====== MIDDLEWARE GLOBAL: RESPUESTA SIEMPRE ARRAY ======
-app.use((req, res, next) => {
-  const originalJson = res.json;
-  res.json = (data) => {
-    if (data && !Array.isArray(data)) {
-      originalJson.call(res, [data]);
-    } else {
-      originalJson.call(res, data);
-    }
-  };
-  next();
-});
-
 // ====== RUTAS ======
 app.use("/roles", rolesRoutes);
 app.use("/permisos", permisosRoutes);
@@ -59,18 +46,13 @@ app.use("/clientes", clientesRoutes);
 
 // ====== ENDPOINT PRINCIPAL ======
 app.get("/", (req, res) => {
-  res.json({ message: "Jirehmar API running" });
+  res.json([{ mensaje: "API de Jirehmar en ejecución" }]);
 });
 
-// ====== ENDPOINT SIMPLE DE RUTAS (Clicables, solo HTML) ======
+// ====== ENDPOINT JSON DE RUTAS ======
 app.get("/routes", (req, res) => {
   const rutas = listEndpoints(app);
-  let html = `<h1>Rutas de la API</h1><ul>`;
-  rutas.forEach(r => {
-    html += `<li>${r.methods.join(", ")} - <a href="${r.path}" target="_blank">${r.path}</a></li>`;
-  });
-  html += `</ul>`;
-  res.send(html);
+  res.json(rutas); // ✅ Esto devuelve un array JSON puro
 });
 
 export default app;

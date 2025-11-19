@@ -1,3 +1,4 @@
-import app from "../src/app.js";
+import vercel from 'vercel-express';
+import app from '../app.js';
 
-export default app;
+export default vercel(app);
