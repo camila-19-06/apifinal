@@ -44,15 +44,28 @@ app.use("/ver-detalle-desempeno", verDetalleDesempenoRoutes);
 app.use("/reportes-desempeno", reportesDesempenoRoutes);
 app.use("/clientes", clientesRoutes);
 
-// ====== ENDPOINT PRINCIPAL ======
+
+
+
 app.get("/", (req, res) => {
-  res.json([{ mensaje: "API de Jirehmar en ejecución" }]);
+  // Obtener todas las rutas y filtrar las que NO contienen ':'
+  const rutas = listEndpoints(app)
+    .map(r => r.path)          // solo extrae el path
+    .filter(path => !path.includes(":")); // filtra rutas con parámetros
+
+  res.setHeader("Content-Type", "application/json");
+  res.send(JSON.stringify({
+    mensaje: "API de Jirehmar en ejecución",
+    rutas_disponibles: rutas
+  }, null, 2)); // '2' espacios para indentación
 });
 
-// ====== ENDPOINT JSON DE RUTAS ======
+
+// ====== ENDPOINT JSON DE TODAS LAS RUTAS ======
 app.get("/routes", (req, res) => {
   const rutas = listEndpoints(app);
-  res.json(rutas); // ✅ Esto devuelve un array JSON puro
+  res.json(rutas); // Array JSON puro con toda la info de rutas
 });
+
 
 export default app;
