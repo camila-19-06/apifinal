@@ -47,15 +47,15 @@ app.use(`${API_PREFIX}/ver-detalle-desempeno`, verDetalleDesempenoRoutes);
 app.use(`${API_PREFIX}/reportes-desempeno`, reportesDesempenoRoutes);
 app.use(`${API_PREFIX}/clientes`, clientesRoutes);
 
-// ====== BASE_URL ======
-const BASE_URL = process.env.BASE_URL || "http://localhost:3000";
-
 // ====== ENDPOINT PRINCIPAL / con links clicables ======
 app.get("/", (req, res) => {
+  // Detectar automáticamente la URL base del host actual
+  const baseUrl = `${req.protocol}://${req.get("host")}`;
+
   const rutas = listEndpoints(app)
     .map(r => r.path)
     .filter(path => !path.includes(":")) // solo rutas base
-    .map(path => `${BASE_URL}${path}`);   // convertir en URL completa
+    .map(path => `${baseUrl}${path}`);   // convertir en URL completa
 
   const html = `
     <html>
@@ -79,6 +79,14 @@ app.get("/", (req, res) => {
 app.get("/routes", (req, res) => {
   const rutas = listEndpoints(app);
   res.json(rutas); // Array JSON puro con toda la info de rutas
+});
+
+// ====== LEVANTAR EL SERVIDOR ======
+const PORT = process.env.PORT || 10000;
+
+app.listen(PORT, () => {
+  const hostUrl = process.env.BASE_URL || `http://localhost:${PORT}`;
+  console.log(`Servidor ejecutándose en: ${hostUrl}`);
 });
 
 export default app;

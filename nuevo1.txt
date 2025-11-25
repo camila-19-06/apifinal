@@ -1,0 +1,46 @@
+[
+  {
+    "nombre": "Supervisor",
+    "estado": "activo"
+  },
+  {
+    "nombre": "Operario",
+    "estado": "activo"
+  },
+  {
+    "nombre": "Administrador",
+    "estado": "activo"
+  }
+]
+
+
+[
+  {
+    "descripcion": "Crear orden",
+    "id_rol": 1
+  },
+  {
+    "descripcion": "Ver órdenes",
+    "id_rol": 1
+  },
+  {
+    "descripcion": "Editar usuario",
+    "id_rol": 3
+  }
+]
+[
+  {
+    "nombre": "Camila Ceballos",
+    "correo": "camila@jirehmar.com",
+    "contrasena": "123456",
+    "estado": "activo",
+    "id_rol": 3
+  },
+  {
+    "nombre": "Juan Pérez",
+    "correo": "juan@jirehmar.com",
+    "contrasena": "123456",
+    "estado": "activo",
+    "id_rol": 1
+  }
+]
