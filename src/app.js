@@ -49,13 +49,12 @@ app.use(`${API_PREFIX}/clientes`, clientesRoutes);
 
 // ====== ENDPOINT PRINCIPAL / con links clicables ======
 app.get("/", (req, res) => {
-  // Detectar automáticamente la URL base del host actual
   const baseUrl = `${req.protocol}://${req.get("host")}`;
 
   const rutas = listEndpoints(app)
     .map(r => r.path)
-    .filter(path => !path.includes(":")) // solo rutas base
-    .map(path => `${baseUrl}${path}`);   // convertir en URL completa
+    .filter(path => !path.includes(":"))
+    .map(path => `${baseUrl}${path}`);
 
   const html = `
     <html>
@@ -77,16 +76,7 @@ app.get("/", (req, res) => {
 
 // ====== ENDPOINT JSON DE TODAS LAS RUTAS ======
 app.get("/routes", (req, res) => {
-  const rutas = listEndpoints(app);
-  res.json(rutas); // Array JSON puro con toda la info de rutas
-});
-
-// ====== LEVANTAR EL SERVIDOR ======
-const PORT = process.env.PORT || 10000;
-
-app.listen(PORT, () => {
-  const hostUrl = process.env.BASE_URL || `http://localhost:${PORT}`;
-  console.log(`Servidor ejecutándose en: ${hostUrl}`);
+  res.json(listEndpoints(app));
 });
 
 export default app;
